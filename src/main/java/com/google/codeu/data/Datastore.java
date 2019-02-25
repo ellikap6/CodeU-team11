@@ -49,34 +49,75 @@ public class Datastore {
   /**
    * Gets messages posted by a specific user.
    *
+   * @param String user's name
    * @return a list of messages posted by the user, or empty list if user has never posted a
    *     message. List is sorted by time descending.
    */
   public List<Message> getMessages(String user) {
-    List<Message> messages = new ArrayList<>();
+	  
+    return fillMessageList(user);
+  }
+  
+  /**
+   * Gets all messages posted.
+   *
+   * @return a list of all messages posted, or empty list if there are no posted
+   *     messages. List is sorted by time descending.
+   */
+  public List<Message> getAllMessages(){
 
-    Query query =
-        new Query("Message")
-            .setFilter(new Query.FilterPredicate("user", FilterOperator.EQUAL, user))
-            .addSort("timestamp", SortDirection.DESCENDING);
-    PreparedQuery results = datastore.prepare(query);
+	  return fillMessageList(null);
+	  
+	 }
+  
+	/**
+	 * Private helper method to create encapsulation for getMassages() and
+	 * getAllMessages(). Takes in the user's name as a string. If the user is null,
+	 * then the messages won't be filtered and all messages are returned.
+	 * 
+	 * @param user the user the message are being filtered by. If null, all messages
+	 *             are returned
+	 * @return List of message of the posted messages, either filtered by user, or
+	 *         with no filter.
+	 */
+  private List<Message> fillMessageList(String user) {
+	  List<Message> messages = new ArrayList<>();
+	  Query query;
+	  boolean filterByUser;
+	  if (user != null) {
+	    query =
+	        new Query("Message")
+	            .setFilter(new Query.FilterPredicate("user", FilterOperator.EQUAL, user))
+	            .addSort("timestamp", SortDirection.DESCENDING);
+	    filterByUser = true;
+	  } else {
+		  query = new Query("Message")
+				    .addSort("timestamp", SortDirection.DESCENDING);
+		  filterByUser = false;		  
+	  }
+	    PreparedQuery results = datastore.prepare(query);
+	  
+	  for (Entity entity : results.asIterable()) {
+		   try {
+		    String idString = entity.getKey().getName();
+		    UUID id = UUID.fromString(idString);
+		    if (!filterByUser) {
+		        user = (String) entity.getProperty("user");
+		    }
+		    String text = (String) entity.getProperty("text");
+		    long timestamp = (long) entity.getProperty("timestamp");
 
-    for (Entity entity : results.asIterable()) {
-      try {
-        String idString = entity.getKey().getName();
-        UUID id = UUID.fromString(idString);
-        String text = (String) entity.getProperty("text");
-        long timestamp = (long) entity.getProperty("timestamp");
-
-        Message message = new Message(id, user, text, timestamp);
-        messages.add(message);
-      } catch (Exception e) {
-        System.err.println("Error reading message.");
-        System.err.println(entity.toString());
-        e.printStackTrace();
-      }
-    }
-
-    return messages;
+		    Message message = new Message(id, user, text, timestamp);
+		    messages.add(message);
+		   } catch (Exception e) {
+		    System.err.println("Error reading message.");
+		    System.err.println(entity.toString());
+		    e.printStackTrace();
+		   }
+		  }
+	  return messages;
+	  
+	  
+	  
   }
 }
