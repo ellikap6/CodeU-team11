@@ -78,7 +78,7 @@ public class Datastore {
 	 }
   
 	/**
-	 * Private helper method to create encapsulation for getMassages() and
+	 * Private helper method to create encapsulation for getMessages() and
 	 * getAllMessages(). Takes a given query that specifies sorting and filtering.
 	 * 
 	 * @param results a PreparedQuery that specifies sorting and filtering of the messages
