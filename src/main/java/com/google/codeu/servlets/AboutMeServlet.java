@@ -13,6 +13,7 @@ import com.google.codeu.data.Datastore;
 
 /**
  * Handles fetching and saving user data.
+ * About me Servlet
  */
 @WebServlet("/about")
 public class AboutMeServlet extends HttpServlet {
@@ -27,6 +28,7 @@ public class AboutMeServlet extends HttpServlet {
  /**
   * Responds with the "about me" section for a particular user.
   */
+
  @Override
  public void doGet(HttpServletRequest request, HttpServletResponse response)
    throws IOException {
