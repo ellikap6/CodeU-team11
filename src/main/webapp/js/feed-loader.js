@@ -12,11 +12,12 @@
       }
       else{
        messageContainer.innerHTML = '';  
+	   messages.forEach((message) => {  
+         const messageDiv = buildMessageDiv(message);
+         messageContainer.appendChild(messageDiv);
+       });
       }
-      messages.forEach((message) => {  
-       const messageDiv = buildMessageDiv(message);
-       messageContainer.appendChild(messageDiv);
-      });
+      
     });
   }
   
