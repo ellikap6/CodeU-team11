@@ -44,10 +44,6 @@ public class Datastore {
     return results.countEntities(FetchOptions.Builder.withLimit(1000));
   }
 
-
-
-
-
   /** Stores the Message in Datastore. */
   public void storeMessage(Message message) {
     Entity messageEntity = new Entity("Message", message.getId().toString());
@@ -57,9 +53,6 @@ public class Datastore {
 
     datastore.put(messageEntity);
   }
-
-
-
 
   /**
    * Gets messages posted by a specific user.
@@ -76,9 +69,6 @@ public class Datastore {
 	  
       return fillMessageList(results);
   }
-
-
-
 
   /**
    * Gets all messages posted.
