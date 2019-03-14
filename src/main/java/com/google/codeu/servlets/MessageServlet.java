@@ -98,7 +98,7 @@ public class MessageServlet extends HttpServlet {
     }
 
     String user = userService.getCurrentUser().getEmail();
-    String text = Jsoup.clean(request.getParameter("text"), Whitelist.none());
+    String text = Jsoup.clean(request.getParameter("text"), Whitelist.basicWithImages());
     float sentimentScore = getSentimentScore(text);
 
     Message message = new Message(user, text, sentimentScore);
