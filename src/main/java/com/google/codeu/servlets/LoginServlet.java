@@ -15,6 +15,8 @@
  */
 
 
+
+
 package com.google.codeu.servlets;
 
 import com.google.appengine.api.users.UserService;
@@ -24,6 +26,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Redirects the user to the Google login page or their page if they're already logged in.
@@ -33,6 +36,8 @@ public class LoginServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+
 
     UserService userService = UserServiceFactory.getUserService();
 
@@ -46,6 +51,9 @@ public class LoginServlet extends HttpServlet {
     // Redirect to Google login page. That page will then redirect back to /login,
     // which will be handled by the above if statement.
     String googleLoginUrl = userService.createLoginURL("/login");
+
     response.sendRedirect(googleLoginUrl);
   }
 }
+
+
