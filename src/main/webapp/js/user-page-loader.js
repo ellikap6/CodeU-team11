@@ -95,7 +95,7 @@ function buildMessageDiv(message) {
 function buildUI() {
   setPageTitle();
   fetchAboutMe();
-  const config = {removePlugins: [ 'Heading', 'List' ]};	
+  const config = {removePlugins: [ 'ImageUpload' ]};	
   ClassicEditor.create(document.getElementById('message-input'), config );
   showMessageFormIfViewingSelf();
   fetchMessages();
