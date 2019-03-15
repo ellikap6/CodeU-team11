@@ -44,6 +44,7 @@ function showMessageFormIfViewingSelf() {
           messageForm.classList.remove('hidden');
         }
       });
+      document.getElementById('about-me-form').classList.remove('hidden');
 }
 
 /** Fetches messages and add them to the page. */
@@ -93,10 +94,12 @@ function buildMessageDiv(message) {
 /** Fetches data and populates the UI of the page. */
 function buildUI() {
   setPageTitle();
+  fetchAboutMe();
+  const config = {removePlugins: [ 'Heading', 'List' ]};	
+  ClassicEditor.create(document.getElementById('message-input'), config );
   showMessageFormIfViewingSelf();
   fetchMessages();
 }
-
 function fetchAboutMe(){
   const url = '/about?user=' + parameterUsername;
   fetch(url).then((response) => {
