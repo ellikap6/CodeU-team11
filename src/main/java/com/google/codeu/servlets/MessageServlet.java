@@ -30,11 +30,33 @@ import javax.servlet.http.HttpServletResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
+import com.google.cloud.language.v1.Document;
+import com.google.cloud.language.v1.Document.Type;
+import com.google.cloud.language.v1.LanguageServiceClient;
+import com.google.cloud.language.v1.Sentiment;
+import java.io.IOException;
+
+
+
 /** Handles fetching and saving {@link Message} instances. */
 @WebServlet("/messages")
 public class MessageServlet extends HttpServlet {
 
   private Datastore datastore;
+
+
+  private float getSentimentScore(String text) throws IOException {
+    Document doc = Document.newBuilder()
+            .setContent(text).setType(Type.PLAIN_TEXT).build();
+
+    LanguageServiceClient languageService = LanguageServiceClient.create();
+    Sentiment sentiment = languageService.analyzeSentiment(doc).getDocumentSentiment();
+    languageService.close();
+
+    return sentiment.getScore();
+  }
+
+
 
   @Override
   public void init() {
@@ -76,13 +98,17 @@ public class MessageServlet extends HttpServlet {
     }
 
     String user = userService.getCurrentUser().getEmail();
+
     // basicWithImages allows a, b, blockquote, br, cite, code, dd, dl, dt, em, i, li, ol,
     // p, pre, q, small, span, strike, strong, sub, sup, u, ul, and image tags
     String text = Jsoup.clean(request.getParameter("text"), Whitelist.basicWithImages());
+    float sentimentScore = getSentimentScore(text);
 
-    Message message = new Message(user, text);
+    Message message = new Message(user, text, sentimentScore);
     datastore.storeMessage(message);
 
     response.sendRedirect("/user-page.html?user=" + user);
   }
+
+
 }
