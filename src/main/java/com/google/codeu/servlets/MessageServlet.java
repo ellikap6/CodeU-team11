@@ -98,6 +98,9 @@ public class MessageServlet extends HttpServlet {
     }
 
     String user = userService.getCurrentUser().getEmail();
+
+    // basicWithImages allows a, b, blockquote, br, cite, code, dd, dl, dt, em, i, li, ol,
+    // p, pre, q, small, span, strike, strong, sub, sup, u, ul, and image tags
     String text = Jsoup.clean(request.getParameter("text"), Whitelist.basicWithImages());
     float sentimentScore = getSentimentScore(text);
 
