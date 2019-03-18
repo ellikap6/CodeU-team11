@@ -18,6 +18,8 @@ package com.google.codeu.servlets;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
 import com.google.codeu.data.Datastore;
 import com.google.codeu.data.Message;
 import com.google.gson.Gson;
@@ -29,60 +31,83 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.Translate.TranslateOption;
+
 
 /** Handles fetching and saving {@link Message} instances. */
 @WebServlet("/messages")
 public class MessageServlet extends HttpServlet {
 
-  private Datastore datastore;
+	private Datastore datastore;
 
-  @Override
-  public void init() {
-    datastore = new Datastore();
-  }
+	@Override
+	public void init() {
+		datastore = new Datastore();
+	}
 
-  /**
-   * Responds with a JSON representation of {@link Message} data for a specific user. Responds with
-   * an empty array if the user is not provided.
-   */
-  @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	/**
+	 * Responds with a JSON representation of {@link Message} data for a specific
+	 * user. Responds with an empty array if the user is not provided.
+	 */
+	@Override
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-    response.setContentType("application/json");
+		response.setContentType("application/json");
 
-    String user = request.getParameter("user");
+		String user = request.getParameter("user");
 
-    if (user == null || user.equals("")) {
-      // Request is invalid, return empty array
-      response.getWriter().println("[]");
-      return;
-    }
+		if (user == null || user.equals("")) {
+			// Request is invalid, return empty array
+			response.getWriter().println("[]");
+			return;
+		}	
 
-    List<Message> messages = datastore.getMessages(user);
-    Gson gson = new Gson();
-    String json = gson.toJson(messages);
+		List<Message> messages = datastore.getMessages(user);
+		String targetLanguageCode = request.getParameter("language");
 
-    response.getWriter().println(json);
-  }
+		if(targetLanguageCode != null) {
+		  translateMessages(messages, targetLanguageCode);
+		}
+		Gson gson = new Gson();
+		String json = gson.toJson(messages);
 
-  /** Stores a new {@link Message}. */
-  @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.getWriter().println(json);
+	}
 
-    UserService userService = UserServiceFactory.getUserService();
-    if (!userService.isUserLoggedIn()) {
-      response.sendRedirect("/index.html");
-      return;
-    }
+	private void translateMessages(List<Message> messages, String targetLanguageCode) {
+		Translate translate = TranslateOptions.getDefaultInstance().getService();
 
-    String user = userService.getCurrentUser().getEmail();
-    // basicWithImages allows a, b, blockquote, br, cite, code, dd, dl, dt, em, i, li, ol,
-    // p, pre, q, small, span, strike, strong, sub, sup, u, ul, and image tags
-    String text = Jsoup.clean(request.getParameter("text"), Whitelist.basicWithImages());
+		for (Message message : messages) {
+			String originalText = message.getText();
 
-    Message message = new Message(user, text);
-    datastore.storeMessage(message);
+			Translation translation = translate.translate(originalText,
+					TranslateOption.targetLanguage(targetLanguageCode));
+			String translatedText = translation.getTranslatedText();
 
-    response.sendRedirect("/user-page.html?user=" + user);
-  }
+			message.setText(translatedText);
+		}
+	}
+
+	/** Stores a new {@link Message}. */
+	@Override
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		UserService userService = UserServiceFactory.getUserService();
+		if (!userService.isUserLoggedIn()) {
+			response.sendRedirect("/index.html");
+			return;
+		}
+
+		String user = userService.getCurrentUser().getEmail();
+		// basicWithImages allows a, b, blockquote, br, cite, code, dd, dl, dt, em, i,
+		// li, ol,
+		// p, pre, q, small, span, strike, strong, sub, sup, u, ul, and image tags
+		String text = Jsoup.clean(request.getParameter("text"), Whitelist.basicWithImages());
+
+		Message message = new Message(user, text);
+		datastore.storeMessage(message);
+
+		response.sendRedirect("/user-page.html?user=" + user);
+	}
 }
