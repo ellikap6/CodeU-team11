@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title> </title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+  <script>
+    let map;
+    function createMap(){
+      
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: 37.422, lng: -122.084},
+        zoom: 16
+      });
+
+      const Marker = new google.maps.Marker({
+        position: {lat: 37.421903, lng: -122.084674},
+        map: map,
+        title: 'Stan the T-Rex'
+      });
+
+      var trexInfoWindow = new google.maps.InfoWindow({
+        content: 'This is Stan, the T-Rex statue.'
+      });
+
+      Marker.addListener('click', function() {
+        trexInfoWindow.open(map, Marker);
+      });
+
+    }
+  </script>
+  <style>
+    #map{
+      width: 500px;
+      height: 500px;
+      border: thin solid black;
+    }
+  </style>
+</head>
+<body onload="createMap();">
+  <h1>Map Project</h1>
+  <div id="map"></div>
+</body>
+</html>
