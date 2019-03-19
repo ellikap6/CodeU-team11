@@ -50,6 +50,7 @@ public class Datastore {
     messageEntity.setProperty("user", message.getUser());
     messageEntity.setProperty("text", message.getText());
     messageEntity.setProperty("timestamp", message.getTimestamp());
+    messageEntity.setProperty("recipient", message.getRecipient());
     messageEntity.setProperty("sentimentScore", message.getSentimentScore());
 
     datastore.put(messageEntity);
@@ -62,12 +63,12 @@ public class Datastore {
    * @return a list of messages posted by the user, or empty list if user has never posted a
    *     message. List is sorted by time descending.
    */
-  public List<Message> getMessages(String user) {
+  public List<Message> getMessages(String recipient) {
 	  Query query = new Query("Message")
-		            .setFilter(new Query.FilterPredicate("user", FilterOperator.EQUAL, user))
+		            .setFilter(new Query.FilterPredicate("recipient", FilterOperator.EQUAL, recipient))
 		            .addSort("timestamp", SortDirection.DESCENDING);
 	  PreparedQuery results = datastore.prepare(query);
-	  
+
       return fillMessageList(results);
   }
 
@@ -83,13 +84,13 @@ public class Datastore {
 	  PreparedQuery results = datastore.prepare(query);
 
 	  return fillMessageList(results);
-	  
+
 	 }
-  
+
 	/**
 	 * Private helper method to create encapsulation for getMessages() and
 	 * getAllMessages(). Takes a given query that specifies sorting and filtering.
-	 * 
+	 *
 	 * @param results a PreparedQuery that specifies sorting and filtering of the messages
 	 * @return List of messages from the posted messages, filtered and sorted
 	 */
@@ -102,10 +103,12 @@ public class Datastore {
 				UUID id = UUID.fromString(idString);
 				String user = (String) entity.getProperty("user");
 				String text = (String) entity.getProperty("text");
+        String recipient = (String) entity.getProperty("recipient");
 				long timestamp = (long) entity.getProperty("timestamp");
 				float sentimentScore = entity.getProperty("sentimentScore") == null? (float) 0.0
 						: ((Double) entity.getProperty("sentimentScore")).floatValue();
-				Message message = new Message(id, user, text, timestamp, sentimentScore);
+
+				Message message = new Message(id, user, text, timestamp, sentimentScore,recipient);
 				messages.add(message);
 			} catch (Exception e) {
 				System.err.println("Error reading message.");
@@ -120,5 +123,3 @@ public class Datastore {
 
 
 }
-
-
