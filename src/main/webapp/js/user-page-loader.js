@@ -52,7 +52,7 @@ function fetchMessages() {
   const parameterLanguage = urlParams.get('language');
   let url = '/messages?user=' + parameterUsername;
   if(parameterLanguage) {
-      url += '&language=' + parameterLanguage;
+    url += '&language=' + parameterLanguage;
   }
   fetch(url)
       .then((response) => {
@@ -65,6 +65,7 @@ function fetchMessages() {
         } else {
           messagesContainer.innerHTML = '';
         }
+		
         messages.forEach((message) => {
           const messageDiv = buildMessageDiv(message);
           messagesContainer.appendChild(messageDiv);

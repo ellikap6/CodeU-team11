@@ -92,21 +92,21 @@ public class MessageServlet extends HttpServlet {
 
     String user = request.getParameter("user");
 
-    if (user == null || user.equals("")) {
+  if (user == null || user.equals("")) {
       // Request is invalid, return empty array
       response.getWriter().println("[]");
       return;
-    }
+    }  
 
     List<Message> messages = datastore.getMessages(user);
-    Gson gson = new Gson();
-    String json = gson.toJson(messages);
     
     String targetLanguageCode = request.getParameter("language");
 
     if(targetLanguageCode != null) {
       translateMessages(messages, targetLanguageCode);
     }
+    Gson gson = new Gson();
+    String json = gson.toJson(messages);
 
     response.getWriter().println(json);
   }
