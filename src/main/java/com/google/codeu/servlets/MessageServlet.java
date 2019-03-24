@@ -84,7 +84,6 @@ public class MessageServlet extends HttpServlet {
 			Translation translation = translate.translate(originalText,
 					TranslateOption.targetLanguage(targetLanguageCode));
 			String translatedText = translation.getTranslatedText();
-
 			message.setText(translatedText);
 		}
 	}

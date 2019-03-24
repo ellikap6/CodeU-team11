@@ -95,9 +95,27 @@ function buildMessageDiv(message) {
   return messageDiv;
 }
 
+/** Adds list of languages for translating messages */
+function buildLanguageLinks(){
+  const userPageUrl = '/user-page.html?user=' + parameterUsername;
+  const languagesListElement  = document.getElementById('languages');
+  languagesListElement.appendChild(createListItem(createLink(
+       userPageUrl + '&language=en', 'English')));
+  languagesListElement.appendChild(createListItem(createLink(
+      userPageUrl + '&language=zh', 'Chinese')));
+  languagesListElement.appendChild(createListItem(createLink(
+      userPageUrl + '&language=hi', 'Hindi')));
+  languagesListElement.appendChild(createListItem(createLink(
+      userPageUrl + '&language=es', 'Spanish')));
+  languagesListElement.appendChild(createListItem(createLink(
+      userPageUrl + '&language=ar', 'Arabic')));
+}
+
 /** Fetches data and populates the UI of the page. */
 function buildUI() {
   setPageTitle();
+  //buildLanguageLinks();
   showMessageFormIfViewingSelf();
   fetchMessages();
 }
+
