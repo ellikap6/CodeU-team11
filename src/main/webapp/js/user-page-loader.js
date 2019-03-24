@@ -116,7 +116,7 @@ function buildLanguageLinks(){
 /** Fetches data and populates the UI of the page. */
 function buildUI() {
   setPageTitle();
-  //buildLanguageLinks();
+  buildLanguageLinks();
   showMessageFormIfViewingSelf();
   fetchMessages();
 }
