@@ -45,10 +45,12 @@
 .hidden {
   display: none;
 }
+
 /* Restricts the size of the images in order to avoid messing up 
    the layout of our page to give a good user experience */
 .message-body img {
   display: block;
   margin-top: 25px;
   max-width: 75%;
+ 
 }
