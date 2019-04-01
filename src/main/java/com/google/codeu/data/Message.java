@@ -54,6 +54,11 @@ public class Message {
     return user;
   }
 
+  public void setText(String words) {
+	  this.text = words;
+	  return;
+  }
+  
   public String getText() {
     return text;
   }
