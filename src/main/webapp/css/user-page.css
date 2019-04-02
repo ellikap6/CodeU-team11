@@ -23,6 +23,7 @@
 
 /* Give each message a rounded border. */
 .message-div {
+  background-color: white;
   border: thin solid black;
   border-radius: 5px;
   margin-top: 20px;
