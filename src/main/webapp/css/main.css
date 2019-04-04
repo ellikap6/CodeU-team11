@@ -16,6 +16,7 @@
 
 /* Prevent the page from becoming too wide. */
 body {
+  background: linear-gradient(to left top, blue, red) fixed;
   max-width: 600px;
 }
 

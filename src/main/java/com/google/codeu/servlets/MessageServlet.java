@@ -29,6 +29,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.Translate.TranslateOption;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
 
 import com.google.cloud.language.v1.Document;
 import com.google.cloud.language.v1.Document.Type;
@@ -55,6 +59,20 @@ public class MessageServlet extends HttpServlet {
 
     return sentiment.getScore();
   }
+  
+  private void translateMessages(List<Message> messages, String targetLanguageCode) {
+	  Translate translate = TranslateOptions.getDefaultInstance().getService();
+
+	  for(Message message : messages) {
+	    String originalText = message.getText();
+
+	    Translation translation =
+	        translate.translate(originalText, TranslateOption.targetLanguage(targetLanguageCode));
+	    String translatedText = translation.getTranslatedText();
+	      
+	    message.setText(translatedText);
+	  }    
+	}
 
 
 
@@ -74,13 +92,19 @@ public class MessageServlet extends HttpServlet {
 
     String user = request.getParameter("user");
 
-    if (user == null || user.equals("")) {
+  if (user == null || user.equals("")) {
       // Request is invalid, return empty array
       response.getWriter().println("[]");
       return;
-    }
+    }  
 
     List<Message> messages = datastore.getMessages(user);
+    
+    String targetLanguageCode = request.getParameter("language");
+
+    if(targetLanguageCode != null) {
+      translateMessages(messages, targetLanguageCode);
+    }
     Gson gson = new Gson();
     String json = gson.toJson(messages);
 
@@ -99,9 +123,10 @@ public class MessageServlet extends HttpServlet {
 
     String user = userService.getCurrentUser().getEmail();
 
+
+
     // basicWithImages allows a, b, blockquote, br, cite, code, dd, dl, dt, em, i, li, ol,
     // p, pre, q, small, span, strike, strong, sub, sup, u, ul, and image tags
-    //String userText = Jsoup.clean(request.getParameter("text"), Whitelist.basicWithImages());
     String userText = Jsoup.clean(request.getParameter("text"), Whitelist.none());
     String recipient = request.getParameter("recipient");   
       
@@ -111,13 +136,14 @@ public class MessageServlet extends HttpServlet {
     
     String textWithImagesReplaced = userText.replaceAll(regex, replacement);
     System.out.println(textWithImagesReplaced);
-    
-        
-    Message message = new Message(user, textWithImagesReplaced, 0.0f , recipient);
+    float sentimentScore = getSentimentScore(text);
+
+    Message message = new Message(user, text, sentimentScore, recipient);
     datastore.storeMessage(message);
     
     response.sendRedirect("/user-page.html?user=" + recipient);
   }
+
 
 }
 
