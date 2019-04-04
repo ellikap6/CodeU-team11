@@ -133,10 +133,9 @@ public class MessageServlet extends HttpServlet {
     String replacement = "<img src=\"$1\" />";
     
     String textWithImagesReplaced = text.replaceAll(regex, replacement);
-    System.out.println(textWithImagesReplaced);
-    float sentimentScore = getSentimentScore(text);
+    float sentimentScore = getSentimentScore(textWithImagesReplaced);
 
-    Message message = new Message(user, text, sentimentScore, recipient);
+    Message message = new Message(user, textWithImagesReplaced, sentimentScore, recipient);
     datastore.storeMessage(message);
     
     response.sendRedirect("/user-page.html?user=" + recipient);
