@@ -103,11 +103,9 @@ public class MessageServlet extends HttpServlet {
     // p, pre, q, small, span, strike, strong, sub, sup, u, ul, and image tags
     //String userText = Jsoup.clean(request.getParameter("text"), Whitelist.basicWithImages());
     String userText = Jsoup.clean(request.getParameter("text"), Whitelist.none());
-    String recipient = request.getParameter("recipient");
-    //float sentimentScore = getSentimentScore(userText);    
+    String recipient = request.getParameter("recipient");   
       
  
-    //String regex = "(https?://\\S+\\.(png|jpg))";
     String regex = "(https?://([^\\s.]+.?[^\\s.])+/([^\\s.]+.?[^\\s.])+.(png|jpg))";
     String replacement = "<img src=\"$1\" />";
     
@@ -122,3 +120,4 @@ public class MessageServlet extends HttpServlet {
   }
 
 }
+
