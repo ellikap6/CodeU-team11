@@ -125,15 +125,19 @@ public class MessageServlet extends HttpServlet {
 
     // basicWithImages allows a, b, blockquote, br, cite, code, dd, dl, dt, em, i, li, ol,
     // p, pre, q, small, span, strike, strong, sub, sup, u, ul, and image tags
-    String text = Jsoup.clean(request.getParameter("text"), Whitelist.basicWithImages());
-    String recipient = request.getParameter("recipient");
-    float sentimentScore = getSentimentScore(text);
+    String text  = Jsoup.clean(request.getParameter("text"), Whitelist.basicWithImages());
+    String recipient = request.getParameter("recipient");   
+      
+ 
+    String regex = "(https?://([^\\s.]+.?[^\\s.])+/([^\\s.]+.?[^\\s.])+.(png|jpg))";
+    String replacement = "<img src=\"$1\" />";
+    
+    String textWithImagesReplaced = text.replaceAll(regex, replacement);
+    float sentimentScore = getSentimentScore(textWithImagesReplaced);
 
-    Message message = new Message(user, text, sentimentScore, recipient);
+    Message message = new Message(user, textWithImagesReplaced, sentimentScore, recipient);
     datastore.storeMessage(message);
-
-      response.sendRedirect("/user-page.html?user=" + recipient);
+    
+    response.sendRedirect("/user-page.html?user=" + recipient);
   }
-
-
 }
