@@ -26,9 +26,9 @@ public class UfoDataServlet extends HttpServlet {
    String line = scanner.nextLine();
    String[] cells = line.split(",");
 
-   String state = cells[0];
-   double lat = Double.parseDouble(cells[1]);
-   double lng = Double.parseDouble(cells[2]);
+   String state = cells[1];
+   double lat = Double.parseDouble(cells[2]);
+   double lng = Double.parseDouble(cells[3]);
 
    ufoSightingArray.add(gson.toJsonTree(new UfoSighting(state, lat, lng)));
   }
