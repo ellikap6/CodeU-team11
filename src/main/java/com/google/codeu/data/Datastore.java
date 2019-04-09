@@ -72,7 +72,7 @@ public class Datastore {
     return buildPost(entity);
   }
 
-  public Post buildPost(Entity entity) {
+  private Post buildPost(Entity entity) {
     String idString = entity.getKey().getName();
     UUID postID = UUID.fromString(idString);
     String creator = (String) entity.getProperty("creator");
@@ -109,7 +109,7 @@ public class Datastore {
     datastore.put(postEntity);
   }
 
-  public List<ChartDataRow> getChartDataRows(UUID postID) {
+  private List<ChartDataRow> getChartDataRows(UUID postID) {
     Query query = new Query("ChartData")
                   .setFilter(new Query.FilterPredicate(
                                   "postID",
@@ -135,7 +135,7 @@ public class Datastore {
     return chartDataRows;
   }
 
-  public void storeChartDataRow(ChartDataRow chartDataRow) {
+  private void storeChartDataRow(ChartDataRow chartDataRow) {
     Entity chartDataRowEntity = new Entity("ChartData");
     chartDataRowEntity.setProperty("date", chartDataRow.getDate());
     chartDataRowEntity.setProperty("value", chartDataRow.getValue());
@@ -143,7 +143,7 @@ public class Datastore {
     datastore.put(chartDataRowEntity);
   }
 
-  public List<Message> getMessages(UUID postID) {
+  private List<Message> getMessages(UUID postID) {
 	  Query query = new Query("Message")
 		            .setFilter(new Query.FilterPredicate("postID", FilterOperator.EQUAL, postID.toString()))
 		            .addSort("timestamp", SortDirection.DESCENDING);
@@ -192,7 +192,7 @@ public class Datastore {
     datastore.put(messageEntity);
   }
 
-  public Marker getMarker(UUID postID) {
+  private Marker getMarker(UUID postID) {
     Query query = new Query("Marker")
                   .setFilter(new Query.FilterPredicate(
                                   "postID",
@@ -213,7 +213,7 @@ public class Datastore {
     return marker;
   }
 
-  public void storeMarker(Marker marker) {
+  private void storeMarker(Marker marker) {
     Entity markerEntity = new Entity("Marker");
     markerEntity.setProperty("lat", marker.getLat());
     markerEntity.setProperty("lng", marker.getLng());
