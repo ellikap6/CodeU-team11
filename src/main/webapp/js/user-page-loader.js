@@ -39,12 +39,22 @@ function showMessageFormIfViewingSelf() {
       })
       .then((loginStatus) => {
         if (loginStatus.isLoggedIn)  {
-          const messageForm = document.getElementById('message-form');
-          messageForm.action = '/messages?recipient=' + parameterUsername;
-          messageForm.classList.remove('hidden');
+          fetchImageUploadUrlAndShowForm();
         }
       });
       document.getElementById('about-me-form').classList.remove('hidden');
+}
+
+function fetchImageUploadUrlAndShowForm() {
+  fetch('/image-upload-url')
+      .then((response) => {
+        return response.text();
+      })
+      .then((imageUploadUrl) => {
+        const messageForm = document.getElementById('message-form');
+        messageForm.action = imageUploadUrl + '?recipient=' + parameterUsername;
+        messageForm.classList.remove('hidden');
+      });
 }
 
 /** Fetches messages and add them to the page. */
@@ -88,6 +98,10 @@ function buildMessageDiv(message) {
   const bodyDiv = document.createElement('div');
   bodyDiv.classList.add('message-body');
   bodyDiv.innerHTML = message.text;
+  if(message.imageUrl){
+    bodyDiv.innerHTML += '<br/>';
+    bodyDiv.innerHTML += '<img src="' + message.imageUrl + '" />';
+  }
 
   const messageDiv = document.createElement('div');
   messageDiv.classList.add('message-div');
@@ -141,7 +155,7 @@ function buildUI() {
   setPageTitle();
   buildLanguageLinks();
   fetchAboutMe();
-  const config = {removePlugins: [ 'ImageUpload' ]};	
+  const config = {removePlugins: [ 'ImageUpload' ]};
   ClassicEditor.create(document.getElementById('message-input'), config );
   showMessageFormIfViewingSelf();
   fetchMessages();
@@ -155,7 +169,7 @@ function fetchAboutMe(){
     if(aboutMe == ''){
       aboutMe = 'This user has not entered any information yet.';
     }
-    
+
     aboutMeContainer.innerHTML = aboutMe;
 
   });

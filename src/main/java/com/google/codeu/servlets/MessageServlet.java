@@ -16,13 +16,20 @@
 
 package com.google.codeu.servlets;
 
+import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.api.images.ImagesService;
+import com.google.appengine.api.images.ServingUrlOptions;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.appengine.api.blobstore.BlobKey;
 import com.google.codeu.data.Datastore;
 import com.google.codeu.data.Message;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -59,7 +66,7 @@ public class MessageServlet extends HttpServlet {
 
     return sentiment.getScore();
   }
-  
+
   private void translateMessages(List<Message> messages, String targetLanguageCode) {
 	  Translate translate = TranslateOptions.getDefaultInstance().getService();
 
@@ -69,9 +76,9 @@ public class MessageServlet extends HttpServlet {
 	    Translation translation =
 	        translate.translate(originalText, TranslateOption.targetLanguage(targetLanguageCode));
 	    String translatedText = translation.getTranslatedText();
-	      
+
 	    message.setText(translatedText);
-	  }    
+	  }
 	}
 
 
@@ -96,10 +103,10 @@ public class MessageServlet extends HttpServlet {
       // Request is invalid, return empty array
       response.getWriter().println("[]");
       return;
-    }  
+    }
 
     List<Message> messages = datastore.getMessages(user);
-    
+
     String targetLanguageCode = request.getParameter("language");
 
     if(targetLanguageCode != null) {
@@ -126,18 +133,31 @@ public class MessageServlet extends HttpServlet {
     // basicWithImages allows a, b, blockquote, br, cite, code, dd, dl, dt, em, i, li, ol,
     // p, pre, q, small, span, strike, strong, sub, sup, u, ul, and image tags
     String text  = Jsoup.clean(request.getParameter("text"), Whitelist.basicWithImages());
-    String recipient = request.getParameter("recipient");   
-      
- 
-    String regex = "(https?://([^\\s.]+.?[^\\s.])+/([^\\s.]+.?[^\\s.])+.(png|jpg))";
-    String replacement = "<img src=\"$1\" />";
-    
-    String textWithImagesReplaced = text.replaceAll(regex, replacement);
-    float sentimentScore = getSentimentScore(textWithImagesReplaced);
+    String recipient = request.getParameter("recipient");
 
-    Message message = new Message(user, textWithImagesReplaced, sentimentScore, recipient);
+
+    // String regex = "(https?://([^\\s.]+.?[^\\s.])+/([^\\s.]+.?[^\\s.])+.(png|jpg))";
+    // String replacement = "<img src=\"$1\" />";
+
+    // String textWithImagesReplaced = text.replaceAll(regex, replacement);
+    // float sentimentScore = getSentimentScore(textWithImagesReplaced);
+
+    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+    Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
+    List<BlobKey> blobKeys = blobs.get("image");
+
+    Message message = new Message(user, text, 0.0f, recipient);
+
+    if(blobKeys != null && !blobKeys.isEmpty()) {
+      BlobKey blobKey = blobKeys.get(0);
+      ImagesService imagesService = ImagesServiceFactory.getImagesService();
+      ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
+      String imageUrl = imagesService.getServingUrl(options);
+      message.setImageUrl(imageUrl);
+    }
+
     datastore.storeMessage(message);
-    
+
     response.sendRedirect("/user-page.html?user=" + recipient);
   }
 }
