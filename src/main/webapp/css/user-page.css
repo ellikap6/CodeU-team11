@@ -23,6 +23,7 @@
 
 /* Give each message a rounded border. */
 .message-div {
+  background-color: white;
   border: thin solid black;
   border-radius: 5px;
   margin-top: 20px;
@@ -44,4 +45,13 @@
    user is not logged in or viewing their own page. */
 .hidden {
   display: none;
+}
+
+/* Restricts the size of the images in order to avoid messing up 
+   the layout of our page to give a good user experience */
+.message-body img {
+  display: block;
+  margin-top: 25px;
+  max-width: 75%;
+ 
 }
