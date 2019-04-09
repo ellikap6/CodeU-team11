@@ -16,6 +16,7 @@
 
 package com.google.codeu.servlets;
 
+import java.util.logging.Logger;
 import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.images.ImagesService;
 import com.google.appengine.api.images.ServingUrlOptions;
@@ -46,6 +47,7 @@ import com.google.cloud.language.v1.Document.Type;
 import com.google.cloud.language.v1.LanguageServiceClient;
 import com.google.cloud.language.v1.Sentiment;
 import java.io.IOException;
+import java.lang.Exception;
 
 
 
@@ -53,6 +55,7 @@ import java.io.IOException;
 @WebServlet("/messages")
 public class MessageServlet extends HttpServlet {
 
+  private static final Logger log = Logger.getLogger(MessageServlet.class.getName());
   private Datastore datastore;
 
 
@@ -135,25 +138,25 @@ public class MessageServlet extends HttpServlet {
     String text  = Jsoup.clean(request.getParameter("text"), Whitelist.basicWithImages());
     String recipient = request.getParameter("recipient");
 
-
-    // String regex = "(https?://([^\\s.]+.?[^\\s.])+/([^\\s.]+.?[^\\s.])+.(png|jpg))";
-    // String replacement = "<img src=\"$1\" />";
-
-    // String textWithImagesReplaced = text.replaceAll(regex, replacement);
-    // float sentimentScore = getSentimentScore(textWithImagesReplaced);
+    float sentimentScore = getSentimentScore(text);
 
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
     Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
     List<BlobKey> blobKeys = blobs.get("image");
 
-    Message message = new Message(user, text, 0.0f, recipient);
+    Message message = new Message(user, text, sentimentScore, recipient);
 
     if(blobKeys != null && !blobKeys.isEmpty()) {
-      BlobKey blobKey = blobKeys.get(0);
-      ImagesService imagesService = ImagesServiceFactory.getImagesService();
-      ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
-      String imageUrl = imagesService.getServingUrl(options);
-      message.setImageUrl(imageUrl);
+      log.info("Block Keys size = " + blobKeys.size());
+      try {
+        BlobKey blobKey = blobKeys.get(0);
+        ImagesService imagesService = ImagesServiceFactory.getImagesService();
+        ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
+        String imageUrl = imagesService.getServingUrl(options);
+        message.setImageUrl(imageUrl);
+      } catch (Exception e) {
+        System.out.println("Error we will have to solve eventually.");
+      }
     }
 
     datastore.storeMessage(message);
