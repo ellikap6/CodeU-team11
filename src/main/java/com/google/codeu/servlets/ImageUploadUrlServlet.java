@@ -17,8 +17,16 @@ public class ImageUploadUrlServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
+    String user = request.getParameter("recipient");
+
+    if (user == null || user.equals("")) {
+      // Request is invalid, return empty array
+      response.getWriter().println("[]");
+      return;
+    }
+
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-    String uploadUrl = blobstoreService.createUploadUrl("/messages") ;
+    String uploadUrl = blobstoreService.createUploadUrl("/messages?recipient=" + user) ;
 
     response.setContentType("text/html");
     response.getOutputStream().println(uploadUrl);
