@@ -46,7 +46,7 @@ public class Datastore {
 
 		for (Entity entity : results.asIterable()) {
 			try {
-        posts.add(buildPost(entity));
+        posts.add(buildPost(entity, false));
 			} catch (Exception e) {
 				System.err.println("Error reading message.");
 				System.err.println(entity.toString());
@@ -69,28 +69,49 @@ public class Datastore {
 	   return null;
 	  }
 
-    return buildPost(entity);
+    return buildPost(entity, true);
   }
 
-  private Post buildPost(Entity entity) {
+  private Post buildPost(Entity entity, boolean isFullPost) {
     String idString = entity.getKey().getName();
     UUID postID = UUID.fromString(idString);
     String creator = (String) entity.getProperty("creator");
+    String title = (String) entity.getProperty("title");
+    String content = (String) entity.getProperty("content");
     String coverImageUrl = (String) entity.getProperty("coverImageUrl");
     long timestamp = (long) entity.getProperty("timestamp");
 
-    Marker marker = getMarker(postID);
-    List<ChartDataRow> chartDataRows = getChartDataRows(postID);
-    List<Message> messages = getMessages(postID);
+
+    // When we are on index.html and need to show all posts we do not want to
+    // get all this extra information yet because we do not use it on that page.
+    // However when we are on post.html we want to get all the information.
+    //
+    // getAllPosts() uses isFullPost = false
+    // getPost(postID) uses isFullPost = true
+    if (isFullPost) {
+      LocationMarker marker = getLocationMarker(postID);
+      List<ChartDataRow> chartDataRows = getChartDataRows(postID);
+      List<Message> messages = getMessages(postID);
+
+      return new Post(
+        postID,
+        creator,
+        timestamp,
+        coverImageUrl,
+        title,
+        content,
+        marker,
+        chartData,
+        messages);
+    }
 
     return new Post(
       postID,
       creator,
       timestamp,
       coverImageUrl,
-      marker,
-      chartData,
-      messages);
+      title,
+      content);
   }
 
   public void storePost(Post post) {
@@ -98,10 +119,12 @@ public class Datastore {
     postEntity.setProperty("creator", post.getCreator());
     postEntity.setProperty("timestamp", post.getTimestamp());
     postEntity.setProperty("coverImageUrl", post.getCoverImageUrl());
+    postEntity.setProperty("title", post.getTitle());
+    postEntity.setProperty("content", post.getContent());
     for (ChartDataRow row : post.getChartDataRows()) {
       storeChartDataRow(row);
     }
-    storeMarker(post.getMarker());
+    storeLocationMarker(post.getLocationMarker());
 
     // Messages are not stored up front. They will be stored on the post page
     // with storeMessage() and they will have to postID to link back to this
@@ -192,8 +215,8 @@ public class Datastore {
     datastore.put(messageEntity);
   }
 
-  private Marker getMarker(UUID postID) {
-    Query query = new Query("Marker")
+  private LocationMarker getLocationMarker(UUID postID) {
+    Query query = new Query("LocationMarker")
                   .setFilter(new Query.FilterPredicate(
                                   "postID",
                                   FilterOperator.EQUAL,
@@ -209,12 +232,12 @@ public class Datastore {
     double lng = (double) entity.getProperty("lng");
     String content = (String) entity.getProperty("content");
     UUID postID = UUID.fromString((String) entity.getProperty("postID"));
-    Marker marker = new Marker(lat, lng, content, postID);
+    LocationMarker marker = new LocationMarker(lat, lng, content, postID);
     return marker;
   }
 
-  private void storeMarker(Marker marker) {
-    Entity markerEntity = new Entity("Marker");
+  private void storeLocationMarker(LocationMarker marker) {
+    Entity markerEntity = new Entity("LocationMarker");
     markerEntity.setProperty("lat", marker.getLat());
     markerEntity.setProperty("lng", marker.getLng());
     markerEntity.setProperty("content", marker.getContent());
