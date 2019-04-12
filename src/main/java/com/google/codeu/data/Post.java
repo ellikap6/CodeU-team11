@@ -45,24 +45,10 @@ public class Post {
 	}
 
 	/**
-	 * @param postID the postID to set
-	 */
-	public void setPostID(UUID postID) {
-		this.postID = postID;
-	}
-
-	/**
 	 * @return the creator
 	 */
 	public String getCreator() {
 		return creator;
-	}
-
-	/**
-	 * @param creator the creator to set
-	 */
-	public void setCreator(String creator) {
-		this.creator = creator;
 	}
 
 	/**
@@ -73,24 +59,10 @@ public class Post {
 	}
 
 	/**
-	 * @param timestamp the timestamp to set
-	 */
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
-	}
-
-	/**
 	 * @return the coverInamgeUrl
 	 */
 	public String getCoverInamgeUrl() {
 		return coverInamgeUrl;
-	}
-
-	/**
-	 * @param coverInamgeUrl the coverInamgeUrl to set
-	 */
-	public void setCoverInamgeUrl(String coverInamgeUrl) {
-		this.coverInamgeUrl = coverInamgeUrl;
 	}
 
 	/**
@@ -101,13 +73,6 @@ public class Post {
 	}
 
 	/**
-	 * @param marker the marker to set
-	 */
-	public void setMarker(LocationMarker marker) {
-		this.marker = marker;
-	}
-
-	/**
 	 * @return the chartData
 	 */
 	public List<ChartDataRow> getChartData() {
@@ -115,24 +80,10 @@ public class Post {
 	}
 
 	/**
-	 * @param chartData the chartData to set
-	 */
-	public void setChartData(List<ChartDataRow> chartData) {
-		this.chartData = chartData;
-	}
-
-	/**
 	 * @return the mesages
 	 */
 	public List<Message> getMesages() {
 		return mesages;
-	}
-
-	/**
-	 * @param mesages the mesages to set
-	 */
-	public void setMesages(List<Message> mesages) {
-		this.mesages = mesages;
 	}
 
 }
