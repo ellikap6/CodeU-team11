@@ -5,7 +5,7 @@ import java.util.UUID;
 
 /**
  * This class creates a Post object that is used for our User's posts and to
- * populate the webpage.
+ * populate the web page.
  * 
  * @author Elli Kaplan
  *
