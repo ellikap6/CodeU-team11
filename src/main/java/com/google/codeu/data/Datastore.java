@@ -37,6 +37,8 @@ public class Datastore {
     datastore = DatastoreServiceFactory.getDatastoreService();
   }
 
+
+
   /** Returns the total number of messages for all users. */
   public int getTotalMessageCount(){
     Query query = new Query("Message");
