@@ -23,6 +23,8 @@ import com.google.codeu.data.Message;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
+
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -90,15 +92,16 @@ public class MessageServlet extends HttpServlet {
 
     response.setContentType("application/json");
 
-    String user = request.getParameter("user");
+    //String user = request.getParameter("user");
+    String postID = request.getParameter("postID");
 
-  if (user == null || user.equals("")) {
+  if (postID == null || postID.equals("")) {
       // Request is invalid, return empty array
       response.getWriter().println("[]");
       return;
     }  
 
-    List<Message> messages = datastore.getMessages(user);
+    List<Message> messages = datastore.getMessages(postID);
     
     String targetLanguageCode = request.getParameter("language");
 

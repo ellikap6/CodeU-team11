@@ -18,7 +18,7 @@ public class Post {
 	private String coverInamgeUrl;
 	private LocationMarker marker;
 	private List<ChartDataRow> chartData;
-	private List<Message> mesages;
+	private List<Message> messages;
 
 	public Post(String creator, String coverImageUrl, LocationMarker marker, List<ChartDataRow> chartData,
 			List<Message> messages) {
@@ -33,7 +33,7 @@ public class Post {
 		this.coverInamgeUrl = coverImageUrl;
 		this.marker = marker;
 		this.chartData = chartData;
-		this.mesages = messages;
+		this.messages = messages;
 
 	}
 
@@ -80,10 +80,17 @@ public class Post {
 	}
 
 	/**
-	 * @return the mesages
+	 * @return the messages
 	 */
-	public List<Message> getMesages() {
-		return mesages;
+	public List<Message> getMessages() {
+		return messages;
+	}
+
+	/**
+	 * @param mesages the messages to set
+	 */
+	public void setMessages(List<Message> mesages) {
+		this.messages = mesages;
 	}
 
 }

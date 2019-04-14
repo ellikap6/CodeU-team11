@@ -63,7 +63,7 @@ public class Datastore {
    * @return a list of messages posted by the user, or empty list if user has never posted a
    *     message. List is sorted by time descending.
    */
-  public List<Message> getMessages(UUID postID) {
+  public List<Message> getMessages(String postID) {
 	  Query query = new Query("Message")
 		            .setFilter(new Query.FilterPredicate("postID", FilterOperator.EQUAL, postID))
 		            .addSort("timestamp", SortDirection.DESCENDING);
@@ -215,7 +215,7 @@ public class Datastore {
 		if (isFullPost) {
 			LocationMarker marker = getLocationMarker(postID);
 			List<ChartDataRow> chartDataRows = getChartDataRows(postID);
-			List<Message> messages = getMessages(postID);
+			List<Message> messages = getMessages(postID.toString());
 
 			return new Post(postID, creator, timestamp, coverImageUrl, marker, chartDataRows, messages);
 		}
