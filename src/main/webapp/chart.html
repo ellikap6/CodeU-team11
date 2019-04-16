@@ -33,7 +33,6 @@
             for (i = 0; i < msgJson.length; i++) {
                 msgRow = [];
                 var timestampAsDate = new Date (msgJson[i].timestamp);
-                // var newDate = new Date(timestampAsDate.getYear(), timestampAsDate.getMonth(), timestampAsDate.getDay());
                 var totalMessages = i + 1;
                 //TODO add the formatted values to msgRow array by using JS' push method
                 msgRow.push(timestampAsDate);
