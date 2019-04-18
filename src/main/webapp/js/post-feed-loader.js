@@ -6,6 +6,3 @@ function setUpFeed () {
   }
 
 
-  function buildUI() {
-  	setUpFeed();
-}
