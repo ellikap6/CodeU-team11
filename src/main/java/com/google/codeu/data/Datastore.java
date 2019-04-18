@@ -52,7 +52,11 @@ public class Datastore {
     messageEntity.setProperty("timestamp", message.getTimestamp());
     messageEntity.setProperty("recipient", message.getRecipient());
     messageEntity.setProperty("sentimentScore", message.getSentimentScore());
-
+    
+    if(message.getImageUrl() != null) {
+    	  messageEntity.setProperty("imageUrl", message.getImageUrl());
+    	}
+    
     datastore.put(messageEntity);
   }
 
@@ -68,7 +72,7 @@ public class Datastore {
 		            .setFilter(new Query.FilterPredicate("recipient", FilterOperator.EQUAL, recipient))
 		            .addSort("timestamp", SortDirection.DESCENDING);
 	  PreparedQuery results = datastore.prepare(query);
-
+	  
       return fillMessageList(results);
   }
 
@@ -107,8 +111,8 @@ public class Datastore {
 				long timestamp = (long) entity.getProperty("timestamp");
 				float sentimentScore = entity.getProperty("sentimentScore") == null? (float) 0.0
 						: ((Double) entity.getProperty("sentimentScore")).floatValue();
-
-				Message message = new Message(id, user, text, timestamp, sentimentScore,recipient);
+				String imageUrl = (String) entity.getProperty("imageUrl");
+				Message message = new Message(id, user, text, timestamp, sentimentScore,recipient, imageUrl);
 				messages.add(message);
 			} catch (Exception e) {
 				System.err.println("Error reading message.");
