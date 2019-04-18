@@ -1,8 +1,0 @@
-target
-.settings
-.classpath
-.project
-.idea
-*.iml
-.DS_Store
-src/main/webapp/maps22.html
