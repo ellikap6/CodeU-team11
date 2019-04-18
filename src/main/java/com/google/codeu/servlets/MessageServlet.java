@@ -143,15 +143,13 @@ public class MessageServlet extends HttpServlet {
     String replacement = "<img src=\"$1\" />";
     
     String textWithImagesReplaced = text.replaceAll(regex, replacement);
-    //float sentimentScore = getSentimentScore(textWithImagesReplaced);
+    float sentimentScore = getSentimentScore(textWithImagesReplaced);
 
 	BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 	Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
 	List<BlobKey> blobKeys = blobs.get("image");
-	 
-	//String ImageUrl = message.getImageUrl();
-	//Message message = new Message(user, text, 0.0f, recipient);
-	Message message = new Message(user, textWithImagesReplaced, 0.0f, recipient);
+	
+	Message message = new Message(user, textWithImagesReplaced, sentimentScore, recipient);
 	 
 	if(blobKeys != null && !blobKeys.isEmpty()) {
 		    BlobKey blobKey = blobKeys.get(0);
@@ -160,7 +158,7 @@ public class MessageServlet extends HttpServlet {
 		    String imageUrl = imagesService.getServingUrl(options);
 		    message.setImageUrl(imageUrl);
 	  }
-	System.out.println("This is recipient" + recipient);
+	
     datastore.storeMessage(message);    
     response.sendRedirect("/user-page.html?user=" + recipient);
   }

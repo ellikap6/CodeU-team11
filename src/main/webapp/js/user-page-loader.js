@@ -46,14 +46,13 @@ function showMessageFormIfViewingSelf() {
 }
 
 function fetchImageUploadUrlAndShowForm() {
-  fetch('/image-upload-url')
+  fetch('/image-upload-url?recipient=' + parameterUsername)
       .then((response) => {
         return response.text();
       })
       .then((imageUploadUrl) => {
         const messageForm = document.getElementById('message-form');
-        messageForm.action = '/messages?recipient=' + parameterUsername;
-        //messageForm.action = imageUploadUrl;
+        messageForm.action = imageUploadUrl;
         messageForm.classList.remove('hidden');
       });
 }
