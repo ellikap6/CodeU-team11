@@ -37,6 +37,8 @@ public class Datastore {
     datastore = DatastoreServiceFactory.getDatastoreService();
   }
 
+
+
   /** Returns the total number of messages for all users. */
   public int getTotalMessageCount(){
     Query query = new Query("Message");
@@ -52,7 +54,11 @@ public class Datastore {
     messageEntity.setProperty("timestamp", message.getTimestamp());
     messageEntity.setProperty("postID", message.getRecipient());
     messageEntity.setProperty("sentimentScore", message.getSentimentScore());
-
+    
+    if(message.getImageUrl() != null) {
+    	  messageEntity.setProperty("imageUrl", message.getImageUrl());
+    	}
+    
     datastore.put(messageEntity);
   }
 
@@ -68,7 +74,7 @@ public class Datastore {
 		            .setFilter(new Query.FilterPredicate("postID", FilterOperator.EQUAL, postID))
 		            .addSort("timestamp", SortDirection.DESCENDING);
 	  PreparedQuery results = datastore.prepare(query);
-
+	  
       return fillMessageList(results);
   }
 
@@ -103,12 +109,15 @@ public class Datastore {
 				UUID id = UUID.fromString(idString);
 				String user = (String) entity.getProperty("user");
 				String text = (String) entity.getProperty("text");
-        String postID = (String) entity.getProperty("postID");
+                String postID = (String) entity.getProperty("postID");
 				long timestamp = (long) entity.getProperty("timestamp");
 				float sentimentScore = entity.getProperty("sentimentScore") == null? (float) 0.0
 						: ((Double) entity.getProperty("sentimentScore")).floatValue();
 
-				Message message = new Message(id, user, text, timestamp, sentimentScore,postID);
+
+				String imageUrl = (String) entity.getProperty("imageUrl");
+				Message message = new Message(id, user, text, timestamp, sentimentScore,postID, imageUrl);
+
 				messages.add(message);
 			} catch (Exception e) {
 				System.err.println("Error reading message.");

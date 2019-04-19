@@ -23,7 +23,8 @@ import com.google.codeu.data.Message;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
+
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -42,6 +43,13 @@ import com.google.cloud.language.v1.LanguageServiceClient;
 import com.google.cloud.language.v1.Sentiment;
 import java.io.IOException;
 
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.blobstore.BlobKey;
+import java.util.Map;
+import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.api.images.ImagesService;
+import com.google.appengine.api.images.ServingUrlOptions;
 
 
 /** Handles fetching and saving {@link Message} instances. */
@@ -113,6 +121,7 @@ public class MessageServlet extends HttpServlet {
 
     response.getWriter().println(json);
   }
+  
 
   /** Stores a new {@link Message}. */
   @Override
@@ -138,9 +147,21 @@ public class MessageServlet extends HttpServlet {
     String textWithImagesReplaced = text.replaceAll(regex, replacement);
     float sentimentScore = getSentimentScore(textWithImagesReplaced);
 
-    Message message = new Message(user, textWithImagesReplaced, sentimentScore, recipient);
-    datastore.storeMessage(message);
-    
+	BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+	Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
+	List<BlobKey> blobKeys = blobs.get("image");
+	
+	Message message = new Message(user, textWithImagesReplaced, sentimentScore, recipient);
+	 
+	if(blobKeys != null && !blobKeys.isEmpty()) {
+		    BlobKey blobKey = blobKeys.get(0);
+		    ImagesService imagesService = ImagesServiceFactory.getImagesService();
+		    ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
+		    String imageUrl = imagesService.getServingUrl(options);
+		    message.setImageUrl(imageUrl);
+	  }
+	
+    datastore.storeMessage(message);    
     response.sendRedirect("/user-page.html?user=" + recipient);
   }
 }
