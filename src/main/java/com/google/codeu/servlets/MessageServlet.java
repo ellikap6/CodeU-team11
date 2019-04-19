@@ -24,7 +24,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
+import java.util.UUID;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -46,11 +46,9 @@ import java.io.IOException;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.blobstore.BlobKey;
-import java.util.Map;
 import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.images.ImagesService;
 import com.google.appengine.api.images.ServingUrlOptions;
-
 
 /** Handles fetching and saving {@link Message} instances. */
 @WebServlet("/messages")
@@ -69,7 +67,7 @@ public class MessageServlet extends HttpServlet {
 
     return sentiment.getScore();
   }
-  
+
   private void translateMessages(List<Message> messages, String targetLanguageCode) {
 	  Translate translate = TranslateOptions.getDefaultInstance().getService();
 
@@ -79,11 +77,10 @@ public class MessageServlet extends HttpServlet {
 	    Translation translation =
 	        translate.translate(originalText, TranslateOption.targetLanguage(targetLanguageCode));
 	    String translatedText = translation.getTranslatedText();
-	      
-	    message.setText(translatedText);
-	  }    
-	}
 
+	    message.setText(translatedText);
+	  }
+	}
 
 
   @Override
@@ -100,17 +97,17 @@ public class MessageServlet extends HttpServlet {
 
     response.setContentType("application/json");
 
-    //String user = request.getParameter("user");
-    String postID = request.getParameter("postID");
+    String postID = request.getParameter("user");
 
-  if (postID == null || postID.equals("")) {
+    if (postID == null || postID.equals("")) {
       // Request is invalid, return empty array
       response.getWriter().println("[]");
       return;
-    }  
+    }
 
-    List<Message> messages = datastore.getMessages(postID);
-    
+    //List<Message> messages = datastore.getMessages(UUID.fromString(postID));
+    List<Message> messages = datastore.getMessages(UUID.fromString("62d430c9-d295-45f4-a97a-5199485dcfc2"));
+
     String targetLanguageCode = request.getParameter("language");
 
     if(targetLanguageCode != null) {
@@ -121,7 +118,7 @@ public class MessageServlet extends HttpServlet {
 
     response.getWriter().println(json);
   }
-  
+
 
   /** Stores a new {@link Message}. */
   @Override
@@ -138,21 +135,22 @@ public class MessageServlet extends HttpServlet {
     // basicWithImages allows a, b, blockquote, br, cite, code, dd, dl, dt, em, i, li, ol,
     // p, pre, q, small, span, strike, strong, sub, sup, u, ul, and image tags
     String text  = Jsoup.clean(request.getParameter("text"), Whitelist.basicWithImages());
-    String recipient = request.getParameter("recipient");   
-      
- 
+    String postID = request.getParameter("recipient");
+
+
     String regex = "(https?://([^\\s.]+.?[^\\s.])+/([^\\s.]+.?[^\\s.])+.(png|jpg))";
     String replacement = "<img src=\"$1\" />";
-    
+
     String textWithImagesReplaced = text.replaceAll(regex, replacement);
     float sentimentScore = getSentimentScore(textWithImagesReplaced);
 
 	BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 	Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
 	List<BlobKey> blobKeys = blobs.get("image");
-	
-	Message message = new Message(user, textWithImagesReplaced, sentimentScore, recipient);
-	 
+
+	//Message message = new Message(user, textWithImagesReplaced, sentimentScore, UUID.fromString(postID));
+  Message message = new Message(user, textWithImagesReplaced, sentimentScore, UUID.fromString("62d430c9-d295-45f4-a97a-5199485dcfc2"));
+
 	if(blobKeys != null && !blobKeys.isEmpty()) {
 		    BlobKey blobKey = blobKeys.get(0);
 		    ImagesService imagesService = ImagesServiceFactory.getImagesService();
@@ -160,8 +158,8 @@ public class MessageServlet extends HttpServlet {
 		    String imageUrl = imagesService.getServingUrl(options);
 		    message.setImageUrl(imageUrl);
 	  }
-	
-    datastore.storeMessage(message);    
-    response.sendRedirect("/user-page.html?user=" + recipient);
+
+    datastore.storeMessage(message);
+    response.sendRedirect("/user-page.html?user=" + postID);
   }
 }

@@ -1,12 +1,13 @@
 package com.google.codeu.data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 /**
  * This class creates a Post object that is used for our User's posts and to
  * populate the webpage.
- * 
+ *
  * @author Elli Kaplan
  *
  */
@@ -22,23 +23,56 @@ public class Post {
 	private List<ChartDataRow> chartData;
 	private List<Message> messages;
 
-	public Post(String creator, String coverImageUrl, String title, String content, LocationMarker marker,
-			List<ChartDataRow> chartData, List<Message> messages) {
-		this(UUID.randomUUID(), creator, System.currentTimeMillis(), coverImageUrl, title, content, marker, chartData,
-				messages);
+
+	// Should be used when creating post for the first time.
+	public Post(
+			String creator,
+			long timestamp,
+			String coverImageUrl,
+			String title,
+			String content,
+			LocationMarker marker,
+			List<ChartDataRow> chartData) {
+		this(UUID.randomUUID(),
+					creator,
+					timestamp,
+					coverImageUrl,
+					title,
+					content,
+					marker,
+					chartData,
+					new ArrayList<>());
 	}
 
-	public Post(UUID postID, String creator, long timestamp, String coverImageUrl, String title, String content) {
-		this(postID, creator, timestamp, coverImageUrl, title, content, null, null, null);
+	// Should be used by post-feed when creating post snippet for feed.
+	public Post(
+			UUID postID,
+			String creator,
+			long timestamp,
+			String coverImageUrl,
+			String title,
+			String content) {
+		this(postID,
+					creator,
+					timestamp,
+					coverImageUrl,
+					title,
+					content,
+					null,
+					null,
+					null);
 	}
 
-	public Post(UUID postID, String creator, long timestamp, String coverImageUrl, String title, String content,
-			LocationMarker marker, List<ChartDataRow> chartData) {
-		this(postID, creator, timestamp, coverImageUrl, title, content, marker, chartData, null);
-	}
-
-	public Post(UUID postID, String creator, long timestamp, String coverImageUrl, String title, String content,
-			LocationMarker marker, List<ChartDataRow> chartData, List<Message> messages) {
+	public Post(
+			UUID postID,
+			String creator,
+			long timestamp,
+			String coverImageUrl,
+			String title,
+			String content,
+			LocationMarker marker,
+			List<ChartDataRow> chartData,
+			List<Message> messages) {
 		this.postID = postID;
 		this.creator = creator;
 		this.timestamp = timestamp;

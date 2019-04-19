@@ -37,8 +37,6 @@ public class Datastore {
     datastore = DatastoreServiceFactory.getDatastoreService();
   }
 
-
-
   /** Returns the total number of messages for all users. */
   public int getTotalMessageCount(){
     Query query = new Query("Message");
@@ -52,13 +50,13 @@ public class Datastore {
     messageEntity.setProperty("user", message.getUser());
     messageEntity.setProperty("text", message.getText());
     messageEntity.setProperty("timestamp", message.getTimestamp());
-    messageEntity.setProperty("postID", message.getRecipient());
+    messageEntity.setProperty("postID", message.getPostID().toString());
     messageEntity.setProperty("sentimentScore", message.getSentimentScore());
-    
+
     if(message.getImageUrl() != null) {
-    	  messageEntity.setProperty("imageUrl", message.getImageUrl());
-    	}
-    
+  	  messageEntity.setProperty("imageUrl", message.getImageUrl());
+  	}
+
     datastore.put(messageEntity);
   }
 
@@ -69,12 +67,12 @@ public class Datastore {
    * @return a list of messages posted by the user, or empty list if user has never posted a
    *     message. List is sorted by time descending.
    */
-  public List<Message> getMessages(String postID) {
+  public List<Message> getMessages(UUID postID) {
 	  Query query = new Query("Message")
-		            .setFilter(new Query.FilterPredicate("postID", FilterOperator.EQUAL, postID))
+		            .setFilter(new Query.FilterPredicate("postID", FilterOperator.EQUAL, postID.toString()))
 		            .addSort("timestamp", SortDirection.DESCENDING);
 	  PreparedQuery results = datastore.prepare(query);
-	  
+
       return fillMessageList(results);
   }
 
@@ -109,14 +107,14 @@ public class Datastore {
 				UUID id = UUID.fromString(idString);
 				String user = (String) entity.getProperty("user");
 				String text = (String) entity.getProperty("text");
-                String postID = (String) entity.getProperty("postID");
+        UUID postID = UUID.fromString((String) entity.getProperty("postID"));
 				long timestamp = (long) entity.getProperty("timestamp");
-				float sentimentScore = entity.getProperty("sentimentScore") == null? (float) 0.0
+				float sentimentScore = entity.getProperty("sentimentScore") == null ? (float) 0.0
 						: ((Double) entity.getProperty("sentimentScore")).floatValue();
 
 
 				String imageUrl = (String) entity.getProperty("imageUrl");
-				Message message = new Message(id, user, text, timestamp, sentimentScore,postID, imageUrl);
+				Message message = new Message(id, user, text, timestamp, sentimentScore, postID, imageUrl);
 
 				messages.add(message);
 			} catch (Exception e) {
@@ -135,13 +133,13 @@ public class Datastore {
 	  userEntity.setProperty("aboutMe", user.getAboutMe());
 	  datastore.put(userEntity);
 	 }
-	 
+
 	 /**
 	  * Returns the User owned by the email address, or
 	  * null if no matching User was found.
 	  */
 	 public User getUser(String email) {
-	 
+
 	  Query query = new Query("User")
 	    .setFilter(new Query.FilterPredicate("email", FilterOperator.EQUAL, email));
 	  PreparedQuery results = datastore.prepare(query);
@@ -149,14 +147,14 @@ public class Datastore {
 	  if(userEntity == null) {
 	   return null;
 	  }
-	  
+
 	  String aboutMe = (String) userEntity.getProperty("aboutMe");
 	  User user = new User(email, aboutMe);
-	  
+
 	  return user;
 	 }
-   
-  
+
+
 	public List<UserMarker> getMarkers() {
 		List<UserMarker> markers = new ArrayList<>();
 
@@ -225,7 +223,7 @@ public class Datastore {
 		if (isFullPost) {
 			LocationMarker marker = getLocationMarker(postID);
 			List<ChartDataRow> chartDataRows = getChartDataRows(postID);
-			List<Message> messages = getMessages(postID.toString());
+			List<Message> messages = getMessages(postID);
 
 			return new Post(postID, creator, timestamp, coverImageUrl,title, content, marker, chartDataRows, messages);
 		}
@@ -308,6 +306,4 @@ public class Datastore {
 		datastore.put(postEntity);
 
 	}
- 
-
 }
