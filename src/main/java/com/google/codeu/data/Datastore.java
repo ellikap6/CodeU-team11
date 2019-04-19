@@ -210,10 +210,11 @@ public class Datastore {
 		String idString = entity.getKey().getName();
 		UUID postID = UUID.fromString(idString);
 		String creator = (String) entity.getProperty("creator");
-		// String title = (String) entity.getProperty("title");
-		// String content = (String) entity.getProperty("content");
+		String title = (String) entity.getProperty("title");
+	    String content = (String) entity.getProperty("content");
 		String coverImageUrl = (String) entity.getProperty("coverImageUrl");
 		long timestamp = (long) entity.getProperty("timestamp");
+
 
 		// When we are on index.html and need to show all posts we do not want to
 		// get all this extra information yet because we do not use it on that page.
@@ -226,10 +227,10 @@ public class Datastore {
 			List<ChartDataRow> chartDataRows = getChartDataRows(postID);
 			List<Message> messages = getMessages(postID.toString());
 
-			return new Post(postID, creator, timestamp, coverImageUrl, marker, chartDataRows, messages);
+			return new Post(postID, creator, timestamp, coverImageUrl,title, content, marker, chartDataRows, messages);
 		}
 
-		return new Post(postID, creator, timestamp, coverImageUrl, null, null, null);
+		return new Post(postID, creator, timestamp, coverImageUrl, title, content);
 	}
 
 	private List<ChartDataRow> getChartDataRows(UUID postID) {

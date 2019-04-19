@@ -15,22 +15,36 @@ public class Post {
 	private UUID postID;
 	private String creator;
 	private long timestamp;
-	private String coverInamgeUrl;
+	private String coverImageUrl;
+	private String title;
+	private String content;
 	private LocationMarker marker;
 	private List<ChartDataRow> chartData;
 	private List<Message> messages;
 
-	public Post(String creator, String coverImageUrl, LocationMarker marker, List<ChartDataRow> chartData,
-			List<Message> messages) {
-		this(UUID.randomUUID(), creator, System.currentTimeMillis(), coverImageUrl, marker, chartData, messages);
+	public Post(String creator, String coverImageUrl, String title, String content, LocationMarker marker,
+			List<ChartDataRow> chartData, List<Message> messages) {
+		this(UUID.randomUUID(), creator, System.currentTimeMillis(), coverImageUrl, title, content, marker, chartData,
+				messages);
 	}
 
-	public Post(UUID postID, String creator, long timestamp, String coverImageUrl, LocationMarker marker,
-			List<ChartDataRow> chartData, List<Message> messages) {
+	public Post(UUID postID, String creator, long timestamp, String coverImageUrl, String title, String content) {
+		this(postID, creator, timestamp, coverImageUrl, title, content, null, null, null);
+	}
+
+	public Post(UUID postID, String creator, long timestamp, String coverImageUrl, String title, String content,
+			LocationMarker marker, List<ChartDataRow> chartData) {
+		this(postID, creator, timestamp, coverImageUrl, title, content, marker, chartData, null);
+	}
+
+	public Post(UUID postID, String creator, long timestamp, String coverImageUrl, String title, String content,
+			LocationMarker marker, List<ChartDataRow> chartData, List<Message> messages) {
 		this.postID = postID;
 		this.creator = creator;
 		this.timestamp = timestamp;
-		this.coverInamgeUrl = coverImageUrl;
+		this.coverImageUrl = coverImageUrl;
+		this.title = title;
+		this.content = content;
 		this.marker = marker;
 		this.chartData = chartData;
 		this.messages = messages;
@@ -62,7 +76,21 @@ public class Post {
 	 * @return the coverInamgeUrl
 	 */
 	public String getCoverInamgeUrl() {
-		return coverInamgeUrl;
+		return coverImageUrl;
+	}
+
+	/**
+	 * @return the title
+	 */
+	public String getTitle() {
+		return title;
+	}
+
+	/**
+	 * @return the content
+	 */
+	public String getContent() {
+		return content;
 	}
 
 	/**
